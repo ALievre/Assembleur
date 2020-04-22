@@ -1,0 +1,1040 @@
+
+
+
+ARM Macro Assembler    Page 1 
+
+
+    1 00000000         
+    2 00000000         
+    3 00000000         ;*******************************************************
+                       *****************
+    4 00000000                 THUMB
+    5 00000000                 REQUIRE8
+    6 00000000                 PRESERVE8
+    7 00000000         ;*******************************************************
+                       *****************
+    8 00000000         
+    9 00000000                 include          REG_UTILES.inc
+    1 00000000         
+    2 00000000         ;**************************************
+    3 00000000         ;     Les adresess utiles  
+    4 00000000         ;***************************************
+    5 00000000         
+    6 00000000         
+    7 00000000         ;**************************************
+    8 00000000         ;     Affectation des bits GPIO  
+    9 00000000         ;***************************************
+   10 00000000         ; GSLCK..... PA0 
+   11 00000000         ; DSPRG..... PA1 
+   12 00000000         ; BLANK..... PA2 
+   13 00000000         ; XLAT...... PA3
+   14 00000000         ; VPRG...... PA4
+   15 00000000         ; SCLK...... PA5
+   16 00000000         ; SIN1...... PA7
+   17 00000000         ;Capteur.....PA8
+   18 00000000         
+   19 00000000         ;LED.........PB10
+   20 00000000         ;****************************************/
+   21 00000000         
+   22 00000000         
+   23 00000000         
+   24 00000000 40010800 
+                       GPIOBASEA
+                               EQU              0X40010800
+   25 00000000 40010C00 
+                       GPIOBASEB
+                               EQU              0X40010C00
+   26 00000000         
+   27 00000000 00000008 
+                       OffsetInput
+                               EQU              0x08
+   28 00000000 0000000C 
+                       OffsetOutput
+                               EQU              0x0C
+   29 00000000 00000010 
+                       OffsetSet
+                               EQU              0x10
+   30 00000000 00000014 
+                       OffsetReset
+                               EQU              0x14
+   31 00000000         
+   32 00000000         
+   33 00000000 00000080 
+                       MaskSerial_In1
+                               equ              0x80
+   34 00000000 00000080 
+
+
+
+ARM Macro Assembler    Page 2 
+
+
+                       MaskSerial_Dots
+                               equ              0x80
+   35 00000000 00000010 
+                       MaskVprg
+                               equ              0x10
+   36 00000000 00000008 
+                       MaskXlat
+                               equ              0x08
+   37 00000000 00000004 
+                       MaskBlank
+                               equ              0x04
+   38 00000000 00000020 
+                       MaskSclk
+                               equ              0x20
+   39 00000000 00000002 
+                       MaskDsprg
+                               equ              0x02
+   40 00000000 00000001 
+                       MaskGsclk
+                               equ              0x01
+   41 00000000         
+   42 00000000         
+   43 00000000 E000ED08 
+                       SCB_VTOR
+                               EQU              0xE000ED08
+   44 00000000 40012C10 
+                       TIM1_SR EQU              0x40012c10
+   45 00000000 40012C24 
+                       TIM1_CNT
+                               EQU              0x40012c24
+   46 00000000 4000082C 
+                       TIM4_ARR
+                               EQU              0x4000082C
+   47 00000000 40000810 
+                       TIM4_SR EQU              0x40000810
+   48 00000000         
+   49 00000000         
+   50 00000000         
+   51 00000000         
+   52 00000000         
+   53 00000000                 END
+   10 00000000                 include          Lumiere.asm
+    1 00000000         ;*******************************************************
+                       ********************
+    2 00000000                 THUMB
+    3 00000000                 REQUIRE8
+    4 00000000                 PRESERVE8
+    5 00000000         
+    6 00000000         ;*******************************************************
+                       *******************
+    7 00000000         ;  Fichier Vierge.asm
+    8 00000000         ; Auteur : V.MAHOUT
+    9 00000000         ; Date :  12/11/2013
+   10 00000000         ;*******************************************************
+                       *******************
+   11 00000000         
+   12 00000000         ;***************IMPORT/EXPORT***************************
+                       *******************
+   13 00000000         
+
+
+
+ARM Macro Assembler    Page 3 
+
+
+   14 00000000         
+   15 00000000         
+   16 00000000         ;*******************************************************
+                       *******************
+   17 00000000         
+   18 00000000         
+   19 00000000         
+   20 00000000         ;***************CONSTANTES******************************
+                       *******************
+   21 00000000         
+   22 00000000         
+   23 00000000         ;*******************************************************
+                       *******************
+   24 00000000         
+   25 00000000         
+   26 00000000         ;***************VARIABLES*******************************
+                       *******************
+   27 00000000                 AREA             MesDonnees, data, readwrite
+   28 00000000         ;*******************************************************
+                       *******************
+   29 00000000         
+   30 00000000 FF 00 00 
+                       Barrette1
+                               DCB              255,0,0
+   31 00000003 00 00 00        DCB              0,  0,0
+   32 00000006 00 00 00        DCB              0,  0,0
+   33 00000009 00 00 00        DCB              0,  0,0
+   34 0000000C 00 00 00        DCB              0,  0,0
+   35 0000000F 00 00 00        DCB              0,  0,0
+   36 00000012 00 00 00        DCB              0,  0,0
+   37 00000015 00 AA 00        DCB              0,0xAA,0
+   38 00000018 00 00 00        DCB              0,  0,0
+   39 0000001B 00 00 00        DCB              0,  0,0
+   40 0000001E 00 00 00        DCB              0,  0,0
+   41 00000021 00 00 00        DCB              0,  0,0
+   42 00000024 00 00 00        DCB              0,  0,0
+   43 00000027 00 00 00        DCB              0,  0,0
+   44 0000002A 00 00 00        DCB              0,  0,0
+   45 0000002D 00 00 FF        DCB              0,  0,255
+   46 00000030         
+   47 00000030 FF 00 00 
+                       Barrette2
+                               DCB              255,0,0
+   48 00000033 00 00 00        DCB              0,  0,0
+   49 00000036 00 00 00        DCB              0,  0,0
+   50 00000039 00 FF 00        DCB              0,  255,0
+   51 0000003C 00 00 00        DCB              0,  0,0
+   52 0000003F 00 00 00        DCB              0,  0,0
+   53 00000042 00 00 00        DCB              0,  0,0
+   54 00000045 00 AA 00        DCB              0,0xAA,0
+   55 00000048 00 00 00        DCB              0,  0,0
+   56 0000004B 00 00 00        DCB              0,  0,0
+   57 0000004E 00 00 00        DCB              0,  0,0
+   58 00000051 00 FF 00        DCB              0,  255,0
+   59 00000054 00 00 00        DCB              0,  0,0
+   60 00000057 00 00 00        DCB              0,  0,0
+   61 0000005A 00 00 00        DCB              0,  0,0
+   62 0000005D 00 00 FF        DCB              0,  0,255
+   63 00000060         
+
+
+
+ARM Macro Assembler    Page 4 
+
+
+   64 00000060         ;*******************************************************
+                       *******************
+   65 00000060         
+   66 00000060         
+   67 00000060         
+   68 00000060         ;***************CODE************************************
+                       *******************
+   69 00000060                 AREA             moncode, code, readonly
+   70 00000000         ;*******************************************************
+                       *******************
+   71 00000000         
+   72 00000000         
+   73 00000000         
+   74 00000000         
+   75 00000000         
+   76 00000000         
+   77 00000000         
+   78 00000000         ;#######################################################
+                       #################
+   79 00000000         ; Procédure ????
+   80 00000000         ;#######################################################
+                       #################
+   81 00000000         ;
+   82 00000000         ; Paramètre entrant  : ???
+   83 00000000         ; Paramètre sortant  : ???
+   84 00000000         ; Variables globales : ???
+   85 00000000         ; Registres modifiés : ???
+   86 00000000         ;-------------------------------------------------------
+                       -----------------
+   87 00000000         
+   88 00000000         
+   89 00000000         
+   90 00000000         
+   91 00000000         
+   92 00000000         
+   93 00000000         ;*******************************************************
+                       *******************
+   94 00000000                 END
+   11 00000000         
+   12 00000000         
+   13 00000000         ;*******************************************************
+                       *****************
+   14 00000000         ;      IMPORT/EXPORT Système
+   15 00000000         ;*******************************************************
+                       *****************
+   16 00000000         
+   17 00000000                 IMPORT           ||Lib$$Request$$armlib|| [CODE,
+WEAK]
+   18 00000000         
+   19 00000000         
+   20 00000000         
+   21 00000000         
+   22 00000000         ; IMPORT/EXPORT de procédure           
+   23 00000000         
+   24 00000000                 IMPORT           Init_Cible
+   25 00000000                 IMPORT           Run_Timer1
+   26 00000000                 IMPORT           Change_LED
+   27 00000000                 EXPORT           main
+   28 00000000         
+
+
+
+ARM Macro Assembler    Page 5 
+
+
+   29 00000000         ;*******************************************************
+                       ************************
+   30 00000000         
+   31 00000000         
+   32 00000000         ;*******************************************************
+                       ************************
+   33 00000000                 AREA             mesdonnees, data, align=9, read
+write
+   34 00000000         
+   35 00000000 00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+
+
+
+ARM Macro Assembler    Page 6 
+
+
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+
+
+
+ARM Macro Assembler    Page 7 
+
+
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+
+
+
+ARM Macro Assembler    Page 8 
+
+
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+
+
+
+ARM Macro Assembler    Page 9 
+
+
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+
+
+
+ARM Macro Assembler    Page 10 
+
+
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00 00 00 
+              00       NouvTVI space            1024
+   36 00000400 01      OldEtat DCB              1
+   37 00000401         
+   38 00000401         
+
+
+
+ARM Macro Assembler    Page 11 
+
+
+   39 00000401         
+   40 00000401         
+   41 00000401         ;*******************************************************
+                       ************************
+   42 00000401         
+   43 00000401                 AREA             moncode, code, readonly
+   44 00000000         
+   45 00000000         
+   46 00000000         
+   47 00000000         ;*******************************************************
+                       ************************
+   48 00000000         ; Procédure principale et point d'entrée du projet
+   49 00000000         ;*******************************************************
+                       ************************
+   50 00000000         main    PROC
+   51 00000000         ;*******************************************************
+                       ************************
+   52 00000000         
+   53 00000000         
+   54 00000000 F04F 0002       MOV              R0,#2
+   55 00000004 F7FF FFFE       BL               Init_Cible
+   56 00000008         
+   57 00000008 4809            LDR              R0,=NouvTVI
+   58 0000000A         ;LDR R2,=SCB_VTOR
+   59 0000000A         ;LDR R1,[R2]
+   60 0000000A F04F 0100       MOV              R1,#0
+   61 0000000E F44F 7380       MOV              R3,#256
+   62 00000012 F851 2B04 
+                       bTVI    LDR              R2,[R1],#4
+   63 00000016 F840 2B04       STR              R2,[R0],#4
+   64 0000001A 3B01            SUBS             R3,#1
+   65 0000001C D1F9            BNE              bTVI
+   66 0000001E         
+   67 0000001E 4804            LDR              R0,=NouvTVI
+   68 00000020 4A04            LDR              R2,=SCB_VTOR
+   69 00000022 6010            STR              R0,[R2]
+   70 00000024 4804            LDR              R0,=NouvTVI+108+64
+   71 00000026 4905            LDR              R1,=Change_LED
+   72 00000028 6001            STR              R1,[R0]
+   73 0000002A         
+   74 0000002A F7FF FFFE       BL               Run_Timer1
+   75 0000002E         
+   76 0000002E         
+   77 0000002E         
+   78 0000002E E7FE    sortie  B                sortie
+   79 00000030         
+   80 00000030         
+   81 00000030         
+   82 00000030         
+   83 00000030                 ENDP
+   84 00000030         
+   85 00000030                 END
+              00000000 
+              E000ED08 
+              000000AC 
+              00000000 
+Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M3 --apcs=interw
+ork --depend=.\objects\principale.d -o.\objects\principale.o -I.\RTE\Device\STM
+32F103RB -I.\RTE\_Simul_ -IC:\Users\ordinateur\AppData\Local\Arm\Packs\ARM\CMSI
+
+
+
+ARM Macro Assembler    Page 12 
+
+
+S\5.6.0\CMSIS\Core\Include -IC:\Users\ordinateur\AppData\Local\Arm\Packs\Keil\S
+TM32F1xx_DFP\2.3.0\Device\Include --predefine="__EVAL SETA 1" --predefine="__MI
+CROLIB SETA 1" --predefine="__UVISION_VERSION SETA 529" --predefine="_RTE_ SETA
+ 1" --predefine="STM32F10X_MD SETA 1" --predefine="STM32F10X_MD SETA 1" --list=
+.\listings\principale.lst Principale.asm
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+Barrette1 00000000
+
+Symbol: Barrette1
+   Definitions
+      At line 30 in file Lumiere.asm
+   Uses
+      None
+Comment: Barrette1 unused
+Barrette2 00000030
+
+Symbol: Barrette2
+   Definitions
+      At line 47 in file Lumiere.asm
+   Uses
+      None
+Comment: Barrette2 unused
+MesDonnees 00000000
+
+Symbol: MesDonnees
+   Definitions
+      At line 27 in file Lumiere.asm
+   Uses
+      None
+Comment: MesDonnees unused
+3 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+bTVI 00000012
+
+Symbol: bTVI
+   Definitions
+      At line 62 in file Principale.asm
+   Uses
+      At line 65 in file Principale.asm
+Comment: bTVI used once
+main 00000000
+
+Symbol: main
+   Definitions
+      At line 50 in file Principale.asm
+   Uses
+      At line 27 in file Principale.asm
+Comment: main used once
+moncode 00000000
+
+Symbol: moncode
+   Definitions
+      At line 69 in file Lumiere.asm
+   Uses
+      None
+Comment: moncode unused
+sortie 0000002E
+
+Symbol: sortie
+   Definitions
+      At line 78 in file Principale.asm
+   Uses
+      At line 78 in file Principale.asm
+Comment: sortie used once
+4 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+NouvTVI 00000000
+
+Symbol: NouvTVI
+   Definitions
+      At line 35 in file Principale.asm
+   Uses
+      At line 57 in file Principale.asm
+      At line 67 in file Principale.asm
+      At line 70 in file Principale.asm
+
+OldEtat 00000400
+
+Symbol: OldEtat
+   Definitions
+      At line 36 in file Principale.asm
+   Uses
+      None
+Comment: OldEtat unused
+mesdonnees 00000000
+
+Symbol: mesdonnees
+   Definitions
+      At line 33 in file Principale.asm
+   Uses
+      None
+Comment: mesdonnees unused
+3 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Absolute symbols
+
+GPIOBASEA 40010800
+
+Symbol: GPIOBASEA
+   Definitions
+      At line 24 in file REG_UTILES.inc
+   Uses
+      None
+Comment: GPIOBASEA unused
+GPIOBASEB 40010C00
+
+Symbol: GPIOBASEB
+   Definitions
+      At line 25 in file REG_UTILES.inc
+   Uses
+      None
+Comment: GPIOBASEB unused
+MaskBlank 00000004
+
+Symbol: MaskBlank
+   Definitions
+      At line 37 in file REG_UTILES.inc
+   Uses
+      None
+Comment: MaskBlank unused
+MaskDsprg 00000002
+
+Symbol: MaskDsprg
+   Definitions
+      At line 39 in file REG_UTILES.inc
+   Uses
+      None
+Comment: MaskDsprg unused
+MaskGsclk 00000001
+
+Symbol: MaskGsclk
+   Definitions
+      At line 40 in file REG_UTILES.inc
+   Uses
+      None
+Comment: MaskGsclk unused
+MaskSclk 00000020
+
+Symbol: MaskSclk
+   Definitions
+      At line 38 in file REG_UTILES.inc
+   Uses
+      None
+Comment: MaskSclk unused
+MaskSerial_Dots 00000080
+
+Symbol: MaskSerial_Dots
+   Definitions
+      At line 34 in file REG_UTILES.inc
+   Uses
+      None
+Comment: MaskSerial_Dots unused
+MaskSerial_In1 00000080
+
+Symbol: MaskSerial_In1
+
+
+
+ARM Macro Assembler    Page 2 Alphabetic symbol ordering
+Absolute symbols
+
+   Definitions
+      At line 33 in file REG_UTILES.inc
+   Uses
+      None
+Comment: MaskSerial_In1 unused
+MaskVprg 00000010
+
+Symbol: MaskVprg
+   Definitions
+      At line 35 in file REG_UTILES.inc
+   Uses
+      None
+Comment: MaskVprg unused
+MaskXlat 00000008
+
+Symbol: MaskXlat
+   Definitions
+      At line 36 in file REG_UTILES.inc
+   Uses
+      None
+Comment: MaskXlat unused
+OffsetInput 00000008
+
+Symbol: OffsetInput
+   Definitions
+      At line 27 in file REG_UTILES.inc
+   Uses
+      None
+Comment: OffsetInput unused
+OffsetOutput 0000000C
+
+Symbol: OffsetOutput
+   Definitions
+      At line 28 in file REG_UTILES.inc
+   Uses
+      None
+Comment: OffsetOutput unused
+OffsetReset 00000014
+
+Symbol: OffsetReset
+   Definitions
+      At line 30 in file REG_UTILES.inc
+   Uses
+      None
+Comment: OffsetReset unused
+OffsetSet 00000010
+
+Symbol: OffsetSet
+   Definitions
+      At line 29 in file REG_UTILES.inc
+   Uses
+      None
+Comment: OffsetSet unused
+SCB_VTOR E000ED08
+
+Symbol: SCB_VTOR
+   Definitions
+      At line 43 in file REG_UTILES.inc
+   Uses
+
+
+
+ARM Macro Assembler    Page 3 Alphabetic symbol ordering
+Absolute symbols
+
+      At line 68 in file Principale.asm
+Comment: SCB_VTOR used once
+TIM1_CNT 40012C24
+
+Symbol: TIM1_CNT
+   Definitions
+      At line 45 in file REG_UTILES.inc
+   Uses
+      None
+Comment: TIM1_CNT unused
+TIM1_SR 40012C10
+
+Symbol: TIM1_SR
+   Definitions
+      At line 44 in file REG_UTILES.inc
+   Uses
+      None
+Comment: TIM1_SR unused
+TIM4_ARR 4000082C
+
+Symbol: TIM4_ARR
+   Definitions
+      At line 46 in file REG_UTILES.inc
+   Uses
+      None
+Comment: TIM4_ARR unused
+TIM4_SR 40000810
+
+Symbol: TIM4_SR
+   Definitions
+      At line 47 in file REG_UTILES.inc
+   Uses
+      None
+Comment: TIM4_SR unused
+19 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+External symbols
+
+Change_LED 00000000
+
+Symbol: Change_LED
+   Definitions
+      At line 26 in file Principale.asm
+   Uses
+      At line 71 in file Principale.asm
+Comment: Change_LED used once
+Init_Cible 00000000
+
+Symbol: Init_Cible
+   Definitions
+      At line 24 in file Principale.asm
+   Uses
+      At line 55 in file Principale.asm
+Comment: Init_Cible used once
+Run_Timer1 00000000
+
+Symbol: Run_Timer1
+   Definitions
+      At line 25 in file Principale.asm
+   Uses
+      At line 74 in file Principale.asm
+Comment: Run_Timer1 used once
+|Lib$$Request$$armlib| 00000000
+
+Symbol: |Lib$$Request$$armlib|
+   Definitions
+      At line 17 in file Principale.asm
+   Uses
+      None
+Comment: |Lib$$Request$$armlib| unused
+4 symbols
+370 symbols in table
